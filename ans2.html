@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        const countMediaExtensions = (mediaFiles) => {
+  return mediaFiles.reduce((acc, file) => {
+    const extension = file.split('.').pop();
+    if (extension) {
+      if (acc[extension]) {
+        acc[extension].count++;
+        acc[extension].files.push(file);
+      } else {
+        acc[extension] = { count: 1, files: [file] };
+      }
+    }
+    return acc;
+  }, {});
+};
+
+console.log(countMediaExtensions(mediaFiles));
+    </script>
+</body>
+</html>

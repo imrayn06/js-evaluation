@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        const movies = [
+            { title: 'The Dark Knight', genre: 'Action', year: 2008, rating: 9.0, director: 'Christopher Nolan' },
+            { title: 'Inception', genre: 'Sci-Fi', year: 2010, rating: 8.8, director: 'Christopher Nolan' },
+            { title: 'Pulp Fiction', genre: 'Crime', year: 1994, rating: 8.9, director: 'Quentin Tarantino' },
+            { title: 'The Shawshank Redemption', genre: 'Drama', year: 1994, rating: 9.3, director: 'Frank Darabont' },
+            { title: 'Interstellar', genre: 'Sci-Fi', year: 2014, rating: 8.6, director: 'Christopher Nolan' },
+            { title: 'Fight Club', genre: 'Drama', year: 1999, rating: 8.8, director: 'David Fincher' },
+            { title: 'The Godfather', genre: 'Crime', year: 1972, rating: 9.2, director: 'Francis Ford Coppola' },
+            { title: 'Forrest Gump', genre: 'Drama', year: 1994, rating: 8.8, director: 'Robert Zemeckis' }
+        ];
+
+
+
+
+        function getAverageRatingByGenre(genre, movies) {
+            const genreMovies = movies.filter(movie => movie.genre === genre);
+            const totalRating = genreMovies.reduce((sum, movie) => sum + movie.rating, 0);
+            return totalRating / genreMovies.length;
+        }
+
+        function getTopDirectors(movies) {
+            const directors = {};
+            movies.forEach(movie => {
+                if (directors[movie.director]) {
+                    directors[movie.director].rating += movie.rating;
+                    directors[movie.director].count++;
+                } else {
+                    directors[movie.director] = { rating: movie.rating, count: 1 };
+                }
+            });
+            const sortedDirectors = Object.entries(directors).sort((a, b) => b[1].rating / b[1].count - a[1].rating / a[1].count);
+            return sortedDirectors.slice(0, 3).map(director => ({ director: director[0], movies: director[1].movies }));
+        }
+
+        function getHighestRatedMoviesByDirector(director, movies) {
+            const directorMovies = movies.filter(movie => movie.director === director);
+            const sortedDirectorMovies = directorMovies.sort((a, b) => b.rating - a.rating);
+            return sortedDirectorMovies;
+        }
+
+        // Example usage:
+        console.log("Average rating of Drama genre:", getAverageRatingByGenre('Drama', movies)); 
+        console.log("Top 3 directors:", getTopDirectors(movies)); 
+        console.log("Highest rated movies by Christopher Nolan:", getHighestRatedMoviesByDirector('Christopher Nolan', movies));
+    </script>
+</body>
+</html>

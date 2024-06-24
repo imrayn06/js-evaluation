@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        const salesData = [
+  { saleId: 1, productId: 101, productName: 'Laptop', category: 'Electronics', price: 899.99, quantity: 1, date: '2023-01-15', customer: 'Alice' },
+  { saleId: 2, productId: 102, productName: 'Smartphone', category: 'Electronics', price: 699.50, quantity: 0, date: '2023-01-20', customer: 'Bob' },
+  { saleId: 3, productId: 103, productName: 'Tablet', category: 'Electronics', price: 299.75, quantity: 2, date: '2023-02-05', customer: 'Charlie' },
+  { saleId: 4, productId: 104, productName: 'Book', category: 'Books', price: 19.99, quantity: 5, date: '2023-02-12', customer: 'David' },
+  { saleId: 5, productId: 105, productName: 'Headphones', category: 'Electronics', price: 99.99, quantity: 3, date: '2023-03-01', customer: 'Alice' },
+  { saleId: 6, productId: 106, productName: 'Novel', category: 'Books', price: 14.95, quantity: 10, date: '2023-03-15', customer: 'Eve' }
+];
+
+// 1. Filter out sales with quantity 0
+const filteredSales = salesData.filter(sale => sale.quantity > 0);
+
+// 2. Calculate total revenue for each sale
+const salesWithRevenue = filteredSales.map(sale => ({
+  ...sale,
+  totalRevenue: sale.price * sale.quantity
+}));
+
+// 3. Convert date to JavaScript Date object
+const salesWithDateObject = salesWithRevenue.map(sale => ({
+  ...sale,
+  date: new Date(sale.date)
+}));
+
+// 4. Performance analysis by category
+const categoryPerformance = {};
+salesWithDateObject.forEach(sale => {
+  if (!categoryPerformance[sale.category]) {
+    categoryPerformance[sale.category] = {
+      totalRevenue: 0,
+      totalQuantity: 0
+    };
+  }
+  categoryPerformance[sale.category].totalRevenue += sale.totalRevenue;
+  categoryPerformance[sale.category].totalQuantity += sale.quantity;
+});
+
+// 5. Analyze monthly sales trend
+const monthlySalesTrend = {};
+salesWithDateObject.forEach(sale => {
+  const month = sale.date.getMonth() + 1; // Month is zero-indexed
+  if (!monthlySalesTrend[month]) {
+    monthlySalesTrend[month] = {
+      totalRevenue: 0
+    };
+  }
+  monthlySalesTrend[month].totalRevenue += sale.totalRevenue;
+});
+
+const customerRevenue = {};
+salesWithDateObject.forEach(sale => {
+  if (!customerRevenue[sale.customer]) {
+    customerRevenue[sale.customer] = 0;
+  }
+  customerRevenue[sale.customer] += sale.totalRevenue;
+});
+
+const topCustomers = Object.entries(customerRevenue)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 3)
+  .map(([customer, revenue]) => ({
+    customer,
+    revenue,
+    averagePurchaseValue: revenue / salesWithDateObject.filter(sale => sale.customer === customer).length
+  }));
+
+console.log('Filtered Sales Data:', filteredSales);
+console.log('Sales with Total Revenue:', salesWithRevenue);
+console.log('Sales with Date Object:', salesWithDateObject);
+console.log('Category Performance:', categoryPerformance);
+console.log('Monthly Sales Trend:', monthlySalesTrend);
+console.log('Top Customers:', topCustomers);
+    </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        const reviews = [
+            { productId: 1, category: 'Electronics', rating: 4.5, comment: 'Excellent!' },
+            { productId: 2, category: 'Books', rating: 3.8, comment: 'Good read' },
+            { productId: 3, category: 'Electronics', rating: 4.0, comment: 'Very good' },
+            { productId: 4, category: 'Books', rating: 4.2, comment: 'Interesting' },
+            { productId: 5, category: 'Electronics', rating: 3.5, comment: 'Decent' }
+        ];
+
+        const averageRatings = reviews.reduce((acc, review) => {
+            if (!acc[review.category]) {
+                acc[review.category] = [];
+            }
+            acc[review.category].push(Number(review.rating));
+            return acc;
+        }, {});
+
+        const avgRatingPerCategory = Object.keys(averageRatings).reduce((acc, category) => {
+            const sum = averageRatings[category].reduce((total, rating) => total + rating, 0);
+            const average = sum / averageRatings[category].length;
+            acc[category] = average.toFixed(1); 
+            return acc;
+        }, {});
+
+        console.log(avgRatingPerCategory);
+    </script>
+</body>
+</html>
