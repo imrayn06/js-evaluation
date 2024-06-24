@@ -1,125 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
+
     <script>
+        let books = [
+            { title: "The Great Gatsby", author: "F. Scott Fitzgerald", year: 1925, genre: "Fiction", rating: 4.2 },
+            { title: "To Kill a Mockingbird", author: "Harper Lee", year: 1960, genre: "Fiction", rating: 4.8 },
+            { title: "1984", author: "George Orwell", year: 1949, genre: "Dystopian", rating: 4.4 },
+            { title: "A Brief History of Time", author: "Stephen Hawking", year: 1988, genre: "Science", rating: 4.1 }
+        ];
 
-const books = [
+        const newBook = {
+            title: "The Road", author: "Cormac McCarthy", year: 2006, genre: "Post-Apocalyptic", rating: 4.3
+        };
 
-{ title: "The Great Gatsby", author: "F. Scott Fitzgerald", year: 1925, genre: "Fiction", rating: 4.2 },
+        const bookUpdates = { year: 2007, rating: 4.5 };
 
-{ title: "To Kill a Mockingbird", author: "Harper Lee", year: 1960, genre: "Fiction", rating: 4.8 },
+        const searchQuery = "mockingbird";
 
-{ title: "1984", author: "George Orwell", year: 1949, genre: "Dystopian", rating: 4.4 },
+        const genreFilter = "Fiction";
 
-{ title: "A Brief History of Time", author: "Stephen Hawking", year: 1988, genre: "Science", rating: 4.1 }
+        const ratingThreshold = 4.3;
 
-];
+        const addBook = (book) => {
+            books.push(book);
+        };
 
+        const removeBook = (title) => {
+            books = books.filter((book) => book.title !== title);
+        };
 
+        const updateBook = (title, updates) => {
+            books = books.map((book) => {
+                if (book.title === title) {
+                    return { ...book, ...updates };
+                }
+                return book;
+            });
+        };
 
-const newBook = { title: "The Road", author: "Cormac McCarthy", year: 2006, genre: "Post-Apocalyptic", rating: 4.3 };
+        const searchBooks = (query) => {
+            return books.filter((book) => {
+                return book.title.toLowerCase().includes(query.toLowerCase()) || book.author.toLowerCase().includes(query.toLowerCase());
+            });
+        };
 
+        const filterBookByGenre = (genre) => {
+            return books.filter((book) => book.genre === genre);
+        };
 
+        const sortBooks = (sortBy, order = "asc") => {
+            return books.sort((a, b) => {
+                if (order === "asc") {
+                    return a[sortBy] > b[sortBy] ? 1 : -1;
+                }
+                return a[sortBy] < b[sortBy] ? 1 : -1;
+            });
+        };
 
-const bookUpdates = { year: 2007, rating: 4.5 };
+        const getBooksAboveRating = (threshold) => {
+            return books.filter((book) => book.rating > threshold);
+        };
 
+        const getAverageRating = () => {
+            const totalRating = books.reduce((acc, book) => acc + book.rating, 0);
+            return totalRating / books.length;
+        };
 
+        addBook(newBook);
+        removeBook("To Kill a Mockingbird");
 
-const searchQuery = "mockingbird";
+        updateBook("1984", bookUpdates);
+        const searchResults = searchBooks(searchQuery);
 
+        const fictionBooks = filterBookByGenre(genreFilter);
+        const sortedBooksByRating = sortBooks("rating");
 
+        const highRatedBooks = getBooksAboveRating(ratingThreshold);
+        const averageRating = getAverageRating();
 
-const genreFilter = "Fiction";
-
-
-
-const ratingThreshold = 4.3;
-
-//   ----------------------------------
-
-const addBook = (books, newBook) => {books.push(newBook);};
-
-const removeBook = (title) => {books = books.filter((book) => book.title !== title);};
-
-const updatedBook = (title,updates) => {books = books.map((book) => {
-    if (book.title === title){
-        return{...book,...updates};
-    }
-    return book;
- });
-};
-
-const searchBooks = (query) => {
-  return books.filter((book) => {
-    return book.title.toLowerCase().includes(query.toLowerCase()) || book.author.toLowerCase().includes(query.toLowerCase());
-  });
-};
-
-const filterBooksByGenre = (genre) => {
-  return books.filter((book) => book.genre === genre);
-};
-
-const sortBooks = (sortBy, order = "asc") => {
-  return books.sort((a, b) => {
-    if (order === "asc") {
-      return a[sortBy] > b[sortBy] ? 1 : -1;
-    }
-    return a[sortBy] < b[sortBy] ? 1 : -1;
-  });
-};
-
-const getBooksAboveRating = (threshold) => {
-  return books.filter((book) => book.rating > threshold);
-};
-
-const getAverageRating = () => {
-  const totalRating = books.reduce((acc, book) => acc + book.rating, 0);
-  return totalRating / books.length;
-};
-
-addBook(newBook);
-
-removeBook("To Kill a Mockingbird");
-
-updateBook("1984", bookUpdates);
-
-const searchResults = searchBooks(searchQuery);
-
-const fictionBooks = filterBooksByGenre(genreFilter);
-
-const sortedBooksByRating = sortBooks("rating");
-
-const highRatedBooks = getBooksAboveRating(ratingThreshold);
-
-const averageRating = getAverageRating();
-
-
-console.log("Books:", books);
-console.log("Search results:", searchResults);
-console.log("Fiction books:", fictionBooks);
-console.log("Sorted books by rating:", sortedBooksByRating);
-console.log("High rated books:", highRatedBooks);
-console.log("Average rating:", averageRating);
-
-const [firstBook, ...remainingBooks] = books;
-
-const bookTitle = firstBook.title;
-
-const { author, genre } = firstBook;
-
-const bookDetails = { ...firstBook, newProperty: "This is a new property" };
-
-console.log("First book:", firstBook);
-console.log("Book title:", bookTitle);
-console.log("Author:", author);
-console.log("Genre:", genre);
-console.log("Book details:", bookDetails);
-
+        console.log("Books:", books);
+        console.log("Search results:", searchResults);
+        console.log("Fiction books:", fictionBooks);
+        console.log("Sorted books by rating:", sortedBooksByRating);
+        console.log("High rated books:", highRatedBooks);
+        console.log("Average rating:", averageRating);
     </script>
+
 </body>
+
 </html>
