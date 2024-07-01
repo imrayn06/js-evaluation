@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Appointment Booking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #app {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid rgb(179, 177, 177);
+            box-shadow: 10px 5px 5px rgb(207, 206, 206);
+            border-radius: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+        .alert {
+            color: red;
+        }
+        form, .auth-form, .appointment-form {
+            display: grid;
+            gap: 10px;
+        }
+        input, select {
+            border-radius: 5px;
+            height: 30px;
+            text-align: center;
+            border: 1px solid #ccc;
+            padding: 5px;
+        }
+        button {
+            width: 100%;
+            height: 40px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+        }
+        button[type="submit"] {
+            background-color: #007bff;
+        }
+        button.logout {
+            background-color: #dc3545;
+        }
+        .appointments-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .appointments-list li {
+            padding: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="auth" class="auth-form">
+            <h2>Patient Login</h2>
+            <form id="patientAuthForm">
+                <input type="text" id="patientUsername" placeholder="Username" required>
+                <input type="password" id="patientPassword" placeholder="Password" required>
+                <button type="submit">Login / Sign Up</button>
+            </form>
+            <p id="patientAuthError" class="alert hidden">Invalid credentials</p>
+
+            <h2>Doctor Login</h2>
+            <form id="doctorAuthForm">
+                <input type="text" id="doctorUsername" placeholder="Username" required>
+                <input type="password" id="doctorPassword" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <p id="doctorAuthError" class="alert hidden">Invalid credentials</p>
+        </div>
+
+        <div id="patientView" class="hidden">
+            <h2>Welcome, <span id="patientName"></span></h2>
+            <button class="logout" id="patientLogoutButton">Logout</button>
+            <h3>Book an Appointment</h3>
+            <select id="doctorSelect"></select>
+            <select id="slotSelect"></select>
+            <button id="bookButton">Book Appointment</button>
+            <p id="bookingError" class="alert hidden">Error booking appointment</p>
+            <h3>Your Appointments</h3>
+            <ul id="patientAppointments" class="appointments-list"></ul>
+        </div>
+
+        <div id="doctorView" class="hidden">
+            <h2>Welcome, Dr. <span id="doctorName"></span></h2>
+            <button class="logout" id="doctorLogoutButton">Logout</button>
+            <h3>Your Appointments</h3>
+            <ul id="doctorAppointments" class="appointments-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        const appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+
+        function saveUsers() {
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+
+        function saveAppointments() {
+            localStorage.setItem('appointments', JSON.stringify(appointments));
+        }
+
+        function saveCurrentUser() {
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const patientAuthForm = document.getElementById('patientAuthForm');
+            const patientUsernameInput = document.getElementById('patientUsername');
+            const patientPasswordInput = document.getElementById('patientPassword');
+            const patientAuthError = document.getElementById('patientAuthError');
+
+            const doctorAuthForm = document.getElementById('doctorAuthForm');
+            const doctorUsernameInput = document.getElementById('doctorUsername');
+            const doctorPasswordInput = document.getElementById('doctorPassword');
+            const doctorAuthError = document.getElementById('doctorAuthError');
+
+            const patientView = document.getElementById('patientView');
+            const doctorView = document.getElementById('doctorView');
+            const patientName = document.getElementById('patientName');
+            const doctorName = document.getElementById('doctorName');
+            const doctorSelect = document.getElementById('doctorSelect');
+            const slotSelect = document.getElementById('slotSelect');
+            const bookButton = document.getElementById('bookButton');
+            const bookingError = document.getElementById('bookingError');
+            const patientAppointments = document.getElementById('patientAppointments');
+            const doctorAppointments = document.getElementById('doctorAppointments');
+
+            const patientLogoutButton = document.getElementById('patientLogoutButton');
+            const doctorLogoutButton = document.getElementById('doctorLogoutButton');
+
+            const slots = ['09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM'];
+            const predefinedDoctors = [
+                { id: 1, name: 'Dr. John Smith' },
+                { id: 2, name: 'Dr. Jane Doe' },
+                { id: 3, name: 'Dr. Emily Johnson' },
+                { id: 4, name: 'Dr. Michael Brown' },
+                { id: 5, name: 'Dr. Sarah Davis' }
+            ];
+
+            function displayView() {
+                if (currentUser) {
+                    document.getElementById('auth').classList.add('hidden');
+                    if (currentUser.role === 'Patient') {
+                        patientView.classList.remove('hidden');
+                        doctorView.classList.add('hidden');
+                        patientName.textContent = currentUser.username;
+                        populateDoctorSelect();
+                        displayPatientAppointments();
+                    } else if (currentUser.role === 'Doctor') {
+                        patientView.classList.add('hidden');
+                        doctorView.classList.remove('hidden');
+                        doctorName.textContent = currentUser.username;
+                        displayDoctorAppointments();
+                    }
+                } else {
+                    document.getElementById('auth').classList.remove('hidden');
+                    patientView.classList.add('hidden');
+                    doctorView.classList.add('hidden');
+                }
+            }
+
+            patientAuthForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const username = patientUsernameInput.value.trim();
+                const password = patientPasswordInput.value.trim();
+
+                let user = users.find(user => user.username === username);
+
+                if (!user) {
+                    user = { username, password, role: 'Patient' };
+                    users.push(user);
+                    saveUsers();
+                }
+
+                if (user.password === password) {
+                    currentUser = user;
+                    saveCurrentUser();
+                    displayView();
+                } else {
+                    patientAuthError.classList.remove('hidden');
+                }
+            });
+
+            doctorAuthForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const username = doctorUsernameInput.value.trim();
+                const password = doctorPasswordInput.value.trim();
+
+                let user = users.find(user => user.username === username && user.role === 'Doctor');
+
+                if (user && user.password === password) {
+                    currentUser = user;
+                    saveCurrentUser();
+                    displayView();
+                } else {
+                    doctorAuthError.classList.remove('hidden');
+                }
+            });
+
+            function populateDoctorSelect() {
+                doctorSelect.innerHTML = '';
+                predefinedDoctors.forEach(doctor => {
+                    const option = document.createElement('option');
+                    option.value = doctor.name;
+                    option.textContent = doctor.name;
+                    doctorSelect.appendChild(option);
+                });
+                populateSlotSelect();
+            }
+
+            function populateSlotSelect() {
+                slotSelect.innerHTML = '';
+                slots.forEach(slot => {
+                    const option = document.createElement('option');
+                    option.value = slot;
+                    option.textContent = slot;
+                    slotSelect.appendChild(option);
+                });
+            }
+
+            bookButton.addEventListener('click', () => {
+                const doctor = doctorSelect.value;
+                const slot = slotSelect.value;
+
+                if (!appointments.some(app => app.doctor === doctor && app.slot === slot)) {
+                    const appointment = { patient: currentUser.username, doctor, slot };
+                    appointments.push(appointment);
+                    saveAppointments();
+                    displayPatientAppointments();
+                    setAppointmentAlert(appointment);
+                } else {
+                    bookingError.classList.remove('hidden');
+                }
+            });
+
+            function displayPatientAppointments() {
+                patientAppointments.innerHTML = '';
+                const patientAppointmentsList = appointments.filter(app => app.patient === currentUser.username);
+                patientAppointmentsList.forEach(app => {
+                    const li = document.createElement('li');
+                    li.textContent = `Dr. ${app.doctor} - ${app.slot}`;
+                    patientAppointments.appendChild(li);
+                });
+            }
+
+            function displayDoctorAppointments() {
+                doctorAppointments.innerHTML = '';
+                const doctorAppointmentsList = appointments.filter(app => app.doctor === currentUser.username);
+                doctorAppointmentsList.forEach(app => {
+                    const li = document.createElement('li');
+                    li.textContent = `${app.patient} - ${app.slot}`;
+                    doctorAppointments.appendChild(li);
+                });
+            }
+
+            function setAppointmentAlert(appointment) {
+                const appointmentTime = new Date();
+                const [hour, minute] = appointment.slot.split(/[: ]/);
+                appointmentTime.setHours(hour % 12 + (appointment.slot.includes('PM') ? 12 : 0));
+                appointmentTime.setMinutes(minute);
+                appointmentTime.setSeconds(0);
+
+                const alertTime = new Date(appointmentTime.getTime() - 5 * 60 * 1000);
+
+                const now = new Date();
+                const timeout = alertTime.getTime() - now.getTime();
+
+                if (timeout > 0) {
+                    setTimeout(() => {
+                        alert(`Reminder: You have an appointment with Dr. ${appointment.doctor} at ${appointment.slot}`);
+                    }, timeout);
+                }
+            }
+
+            patientLogoutButton.addEventListener('click', () => {
+                currentUser = null;
+                saveCurrentUser();
+                displayView();
+            });
+
+            doctorLogoutButton.addEventListener('click', () => {
+                currentUser = null;
+                saveCurrentUser();
+                displayView();
+            });
+
+            displayView();
+        });
+    </script>
+</body>
+</html>
