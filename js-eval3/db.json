@@ -1,0 +1,26 @@
+{
+  "posts": [
+    {
+      "id": "d3d3",
+      "title": "svgsdv",
+      "content": "dsv"
+    },
+    {
+      "id": "1a69",
+      "title": "svgsdv",
+      "content": "dsv"
+    },
+    {
+      "id": "6c70",
+      "title": "svgsdv",
+      "content": "dsv"
+    }
+  ],
+  "comments": [
+    {
+      "id": "1",
+      "postId": 1,
+      "text": "Nice"
+    }
+  ]
+}
