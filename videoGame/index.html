@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Studio Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #c7c5c5;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1,
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        pre {
+            background-color: #a2c3a3;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Game Studio Example</h1>
+        <p>
+            This site demonstrates a game studio with video games.
+            The studio has a list of non-released games, and the user can authenticate to access both released and
+            non-released games.
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum soluta vitae facilis assumenda laboriosam neque
+            officiis quasi rem provident minima non ipsum quia iure, fuga ea, illo magni possimus temporibus?
+        </p>
+        <h2>Console Output</h2>
+        <pre id="output"></pre>
+    </div>
+
+    <script>
+        class GameStudio {
+            constructor(name, foundedYear, country, username, password) {
+                this.name = name;
+                this.foundedYear = foundedYear;
+                this.country = country;
+                this._username = username;
+                this._password = password;
+                this._nonReleasedGames = [];
+            }
+
+            get username() {
+                return this._username;
+            }
+
+            set username(value) {
+                this._username = value;
+            }
+
+            get password() {
+                return this._password;
+            }
+
+            set password(value) {
+                this._password = value;
+            }
+
+            get nonReleasedGames() {
+                return this._nonReleasedGames;
+            }
+
+            addNonReleasedGame(game) {
+                this._nonReleasedGames.push(game);
+            }
+
+            removeNonReleasedGame(game) {
+                this._nonReleasedGames = this._nonReleasedGames.filter(g => g !== game);
+            }
+
+            authenticate(username, password) {
+                if (username === this._username && password === this._password) {
+                    return true;
+                }
+                return false;
+            }
+
+            getAge() {
+                const currentYear = new Date().getFullYear();
+                return currentYear - this.foundedYear;
+            }
+
+            printDetails() {
+                return `
+          Game Studio: ${this.name}
+          Founded: ${this.foundedYear}
+          Country: ${this.country}
+          Age: ${this.getAge()} years
+          Non-Released Games: ${this._nonReleasedGames.length}
+        `;
+            }
+        }
+
+        class VideoGame {
+            constructor(title, releaseYear, genre, developer, released) {
+                this.title = title;
+                this.releaseYear = releaseYear;
+                this.genre = genre;
+                this.developer = developer;
+                this.released = released;
+            }
+
+            printDetails() {
+                return `
+          Game: ${this.title}
+          Release Year: ${this.releaseYear}
+          Genre: ${this.genre}
+          Developer: ${this.developer.name}
+          Released: ${this.released ? "Yes" : "No"}
+        `;
+            }
+        }
+
+        // Example usage
+        const gameStudio = new GameStudio("GameDev Studio", 2010, "USA", "admin", "1");
+        const game1 = new VideoGame("Adventure Quest", 2015, "RPG", gameStudio, true);
+        const game2 = new VideoGame("Space Invaders", 2020, "Arcade", gameStudio, false);
+
+        gameStudio.addNonReleasedGame(game2);
+
+        // Authenticate
+        if (gameStudio.authenticate("admin", "password")) {
+            console.log("Authentication successful.");
+            const outputElement = document.getElementById("output");
+            outputElement.textContent += `
+        Authentication successful.
+        ${game1.printDetails()}
+        ${game2.printDetails()}
+        ${gameStudio.printDetails()}
+      `;
+        } else {
+            console.log("Authentication failed.");
+            const outputElement = document.getElementById("output");
+            outputElement.textContent += `
+        Authentication failed.
+        ${game1.printDetails()}
+      `;
+        }
+    </script>
+</body>
+
+</html>
